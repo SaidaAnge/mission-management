@@ -25,13 +25,11 @@ RUN pip install --upgrade pip && \
 # 6. Copier le code source
 COPY . /app/
 
-# 7. Préparer les fichiers statiques et la base
-RUN mkdir -p /app/staticfiles && \
-    python manage.py collectstatic --noinput && \
-    python manage.py migrate --noinput
-
 # 8. Exposer le port de l’application
 EXPOSE 8000
 
-# 9. Commande de démarrage avec Gunicorn
-CMD ["gunicorn", "mission_manager.wsgi:application", "--bind", "0.0.0.0:8000"]
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Remplace la ligne CMD par :
+ENTRYPOINT ["/app/entrypoint.sh"]
