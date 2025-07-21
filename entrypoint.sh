@@ -1,24 +1,25 @@
 #!/bin/sh
 set -e
 
-# Appliquer migrations
+# 1) Run migrations
 python manage.py migrate --noinput
 
-# Créer automatiquement le super-utilisateur si besoin
-python manage.py shell -c "\
-from django.contrib.auth import get_user_model; \
-User = get_user_model(); \
-\
-username = '${DJANGO_SUPERUSER_USERNAME:-admin}'; \
-email = '${DJANGO_SUPERUSER_EMAIL:-admin@example.com}'; \
-password = '${DJANGO_SUPERUSER_PASSWORD:-adminpass}'; \
-\
-if not User.objects.filter(username=username).exists(): \
-    User.objects.create_superuser(username, email, password);\
-"
+# 2) Create superuser if not exists
+python - <<'EOF'
+from django.contrib.auth import get_user_model
+import os
 
-# Collectstatic (si pas déjà fait)
+User = get_user_model()
+username = os.getenv('DJANGO_SUPERUSER_USERNAME', 'saida')
+email    = os.getenv('DJANGO_SUPERUSER_EMAIL',    'saidaangenakeu@gmail.com')
+password = os.getenv('DJANGO_SUPERUSER_PASSWORD', 'Qwerty@123')
+
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username=username, email=email, password=password)
+EOF
+
+# 3) Collect static files
 python manage.py collectstatic --noinput
 
-# Lancer Gunicorn
+# 4) Start Gunicorn
 exec gunicorn mission_manager.wsgi:application --bind 0.0.0.0:8000
