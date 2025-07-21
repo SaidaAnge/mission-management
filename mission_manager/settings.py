@@ -29,6 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-gjv^jxge9&$8_vs6$es*(0ldst
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Hosts/domain names that are valid for this site
+#ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
 ALLOWED_HOSTS = ['*']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
