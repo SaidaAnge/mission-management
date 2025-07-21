@@ -10,26 +10,31 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# -----------------------------------------------------------------------------
+# BASE DIR
+# -----------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# -----------------------------------------------------------------------------
+# SECURITY
+# -----------------------------------------------------------------------------
+# WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-gjv^jxge9&$8_vs6$es*(0ldst%y__&_k!7vq^7tumn30$u*yd')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gjv^jxge9&$8_vs6$es*(0ldst%y__&_k!7vq^7tumn30$u*yd'
+# DEBUG mode: read from environment (False by default)
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+# Hosts/domain names that are valid for this site
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
 
 
-# Application definition
-
+# -----------------------------------------------------------------------------
+# APPLICATION DEFINITION
+# -----------------------------------------------------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,10 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
 ]
+
 AUTH_USER_MODEL = 'core.Utilisateur'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Whitenoise will be inserted here dynamically below
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,6 +57,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Insert WhiteNoise middleware right after SecurityMiddleware
+whitenoise_index = MIDDLEWARE.index('django.middleware.security.SecurityMiddleware') + 1
+MIDDLEWARE.insert(whitenoise_index, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 
 ROOT_URLCONF = 'mission_manager.urls'
 
@@ -72,24 +84,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mission_manager.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# -----------------------------------------------------------------------------
+# DATABASES
+# -----------------------------------------------------------------------------
+# Default: MySQL local; in prod read from env vars or DATABASE_URL (for Heroku)
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': os.getenv('MYSQL_DATABASE', 'Gestion_Mission'),
+#        'USER': os.getenv('MYSQL_USER', 'root'),
+#        'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
+#        'HOST': os.getenv('MYSQL_HOST', 'localhost'),
+#        'PORT': os.getenv('MYSQL_PORT', '3306'),
+#    }
+#}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Gestion_Mission',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.getenv('MYSQL_DATABASE', 'Gestion_Mission'),
+        'USER': os.getenv('MYSQL_USER', 'admin'),
+        'PASSWORD': os.getenv('MYSQL_PASSWORD', 'NIVb7Pbu'),
+        'HOST': os.getenv('MYSQL_HOST', 'mysql-199930-0.cloudclusters.net'),
+        'PORT': os.getenv('MYSQL_PORT', '10073'),
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
+# -----------------------------------------------------------------------------
+# PASSWORD VALIDATION
+# -----------------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -106,46 +128,48 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-
-# Configuration de redirection après connexion
-LOGIN_REDIRECT_URL = '/dashboard/'
-LOGIN_URL = '/connexion/'
-
-# Configuration de la langue française
+# -----------------------------------------------------------------------------
+# INTERNATIONALIZATION
+# -----------------------------------------------------------------------------
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Europe/Paris'
-
-
 USE_I18N = True
-
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Media files (Uploaded files)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Configuration de redirection après connexion
+# -----------------------------------------------------------------------------
+# REDIRECTIONS & AUTH
+# -----------------------------------------------------------------------------
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGIN_URL = '/connexion/'
 
-# Configuration email pour le développement
+
+# -----------------------------------------------------------------------------
+# STATIC FILES (CSS, JavaScript, Images)
+# -----------------------------------------------------------------------------
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Optional: use WhiteNoise compressed storage for production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# -----------------------------------------------------------------------------
+# MEDIA FILES (Uploaded files)
+# -----------------------------------------------------------------------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# -----------------------------------------------------------------------------
+# DEFAULT AUTO FIELD
+# -----------------------------------------------------------------------------
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# -----------------------------------------------------------------------------
+# EMAIL (DEV)
+# -----------------------------------------------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
