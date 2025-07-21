@@ -1,0 +1,201 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Interventions | 2N CORPORATE{% endblock %}
+
+{% block content %}
+<style>
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-en_attente {
+    background: rgba(255, 152, 0, 0.1);
+    color: #f57c00;
+}
+.status-en_cours {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+.status-terminee {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+.status-annulee {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+.status-brouillon {
+    background: rgba(160, 160, 160, 0.15);
+    color: #555;
+}
+.status-soumis {
+    background: rgba(33, 150, 243, 0.12);
+    color: #2196f3;
+}
+.status-valide {
+    background: rgba(76, 175, 80, 0.13);
+    color: #388e3c;
+}
+</style>
+    <div class="header">
+        <h1 class="page-title">
+            {% if user.role == 'administrateur' %}
+            Interventions
+            {% else %}
+            Mes Interventions
+            {% endif %}
+        </h1>
+        <div class="header-actions">
+            {% if user.role == 'administrateur' or user.missions.exists %}
+            <a href="{% url 'intervention_create' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i>
+                Nouvelle intervention
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if interventions %}
+        <div class="table-container" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom:2rem;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Intervention</th>
+                        <th>Mission</th>
+                        {% if user.role == 'administrateur' %}
+                        <th>Intervenant</th>
+                        {% endif %}
+                        <th>Date</th>
+                        <th>Lieu</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for intervention in interventions %}
+                    <tr>
+                        <td>
+                            <strong>{{ intervention.titre }}</strong>
+                        </td>
+                        <td>
+                            <a href="{% url 'mission_detail' intervention.mission.id %}" class="mission-link">
+                                {{ intervention.mission.titre }}
+                            </a>
+                            <br>
+                            <small style="color: #666;">{{ intervention.mission.client.nom }}</small>
+                        </td>
+                        {% if user.role == 'administrateur' %}
+                        <td>
+                            {% if intervention.intervenant %}
+                                <div class="intervenant-info">
+                                    <div class="intervenant-avatar">
+                                        {{ intervention.intervenant.first_name|first|upper }}
+                                    </div>
+                                    <div>
+                                        {{ intervention.intervenant.first_name }} {{ intervention.intervenant.last_name }}
+                                        <br>
+                                        <small style="color: #666;">{{ intervention.intervenant.get_role_display }}</small>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span style="color: #999;">Non assigné</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        <td>{{ intervention.date|date:"d/m/Y" }}</td>
+                        <td>{{ intervention.lieu }}</td>
+                        <td>
+                            <span class="status-badge status-{{ intervention.statut }}">
+                                {{ intervention.get_statut_display }}
+                            </span>
+                            {% if intervention.intervenant_id == user.id and intervention.statut == 'en_attente' %}
+                                <form method="post" action="{% url 'commencer_intervention' intervention.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <select name="action" class="form-select form-select-sm d-inline w-auto" onchange="if(this.value=='commencer'){this.form.submit();}">
+                                        <option value="">Changer le statut</option>
+                                        <option value="commencer">Passer à 'En cours'</option>
+                                    </select>
+                                </form>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                {% if intervention.rapport and intervention.rapport.statut == 'valide' %}
+                                    <a href="{% url 'intervention_detail' intervention.id %}" class="btn btn-secondary btn-sm" title="Détails">
+                                        <i class="fas fa-eye"></i> Consulter
+                                    </a>
+                                    <a href="{% url 'rapport_intervention' intervention.id %}" class="btn btn-info btn-sm" title="Rapport">
+                                        <i class="fas fa-file-alt"></i>
+                                    </a>
+                                {% else %}
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i> Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% if user.role == 'administrateur' or intervention.cree_par_id == user.id %}
+                                                <li><a class="dropdown-item" href="{% url 'intervention_edit' intervention.id %}"><i class="fas fa-edit text-warning me-2"></i>Modifier</a></li>
+                                                <li><a class="dropdown-item text-danger" href="{% url 'intervention_delete' intervention.id %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?')"><i class="fas fa-trash me-2"></i>Supprimer</a></li>
+                                            {% endif %}
+                                            {% if user.role == 'administrateur' or intervention.cree_par_id == user.id or user == intervention.intervenant %}
+                                                {% if intervention.statut == 'terminee' %}
+                                                    <li><a class="dropdown-item" href="{% url 'rapport_intervention' intervention.id %}"><i class="fas fa-file-alt text-info me-2"></i>Rapport</a></li>
+                                                {% endif %}
+                                            {% endif %}
+                                            {% if user == intervention.intervenant %}
+                                                <li><a class="dropdown-item" href="{% url 'intervention_detail' intervention.id %}"><i class="fas fa-eye text-secondary me-2"></i>Consulter</a></li>
+                                            {% endif %}
+                                            {% if intervention.intervenant_id == user.id and intervention.statut == 'en_cours' %}
+                                                <li><a class="dropdown-item" href="{% url 'terminer_intervention' intervention.id %}" onclick="return confirm('Voulez-vous terminer cette intervention ?')"><i class="fas fa-check text-success me-2"></i>Terminer</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+            <div style="background: rgba(255,255,255,0.95); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 3rem 2rem; text-align: center; max-width: 400px; width: 100%;">
+                <i class="fas fa-tools" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem;"></i>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: #1a1a1a; margin-bottom: 1rem;">
+                    {% if user.role == 'administrateur' %}
+                    Aucune intervention
+                    {% else %}
+                    Aucune intervention assignée
+                    {% endif %}
+                </h3>
+                <p style="color: #666; margin-bottom: 2rem;">
+                    {% if user.role == 'administrateur' %}
+                    Aucune intervention n'a encore été créée.
+                    {% else %}
+                    Vous n'avez pas encore d'interventions assignées. Contactez votre administrateur.
+                    {% endif %}
+                </p>
+                {% if user.role == 'administrateur' %}
+                <a href="{% url 'intervention_create' %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus"></i> Nouvelle intervention
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %} 

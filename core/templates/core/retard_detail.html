@@ -1,0 +1,261 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Détails du Retard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Détails du Retard
+                        </h4>
+                        <div class="btn-group">
+                            {% if not retard.resolu %}
+                            <a href="{% url 'retard_edit' retard.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit me-1"></i>
+                                Modifier
+                            </a>
+                            <a href="{% url 'retard_resolve' retard.id %}" class="btn btn-success btn-sm">
+                                <i class="fas fa-check me-1"></i>
+                                Résoudre
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Informations Générales
+                            </h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Intervention :</td>
+                                    <td>
+                                        <a href="{% url 'intervention_detail' retard.intervention.id %}" 
+                                           class="text-decoration-none">
+                                            {{ retard.intervention.titre }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Mission :</td>
+                                    <td>
+                                        <a href="{% url 'mission_detail' retard.intervention.mission.id %}" 
+                                           class="text-decoration-none">
+                                            {{ retard.intervention.mission.titre }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Type de retard :</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ retard.get_type_retard_display }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Date de début :</td>
+                                    <td>{{ retard.date_debut_retard|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% if retard.date_fin_retard %}
+                                <tr>
+                                    <td class="fw-bold">Date de fin :</td>
+                                    <td>{{ retard.date_fin_retard|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td class="fw-bold">Durée :</td>
+                                    <td>
+                                        {% if retard.resolu %}
+                                            {% if retard.duree_retard %}
+                                                <span class="text-success">{{ retard.duree_retard }}</span>
+                                            {% else %}
+                                                <span class="text-muted">Calculé</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-danger">
+                                                <i class="fas fa-clock me-1"></i>
+                                                En cours
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Statut :</td>
+                                    <td>
+                                        {% if retard.resolu %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>
+                                                Résolu
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                En cours
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>
+                                Responsable
+                            </h5>
+                            <div class="d-flex align-items-center mb-3">
+                                {% if retard.responsable.photo %}
+                                    <img src="{{ retard.responsable.photo.url }}" 
+                                         class="rounded-circle me-3" 
+                                         width="60" height="60" 
+                                         alt="{{ retard.responsable.get_full_name }}">
+                                {% else %}
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 60px; height: 60px;">
+                                        <span class="text-white fw-bold fs-4">
+                                            {{ retard.responsable.first_name|first }}{{ retard.responsable.last_name|first }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1">{{ retard.responsable.get_full_name }}</h6>
+                                    <p class="text-muted mb-1">{{ retard.responsable.role|title }}</p>
+                                    <small class="text-muted">{{ retard.responsable.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-comment me-2"></i>
+                                Motif du Retard
+                            </h5>
+                            <div class="alert alert-warning">
+                                {{ retard.motif|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if retard.impact %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-danger mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Impact sur la Mission
+                            </h5>
+                            <div class="alert alert-danger">
+                                {{ retard.impact|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if retard.actions_correctives %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-success mb-3">
+                                <i class="fas fa-tools me-2"></i>
+                                Actions Correctives
+                            </h5>
+                            <div class="alert alert-success">
+                                {{ retard.actions_correctives|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Statistiques
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h3 class="text-warning">{{ retard.intervention.mission.interventions.count }}</h3>
+                                <small class="text-muted">Interventions</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-danger">{{ retard.intervention.mission.interventions.filter.en_retard.count }}</h3>
+                            <small class="text-muted">En retard</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Historique
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Retard signalé</h6>
+                                <small class="text-muted">{{ retard.date_creation|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% if retard.resolu %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Retard résolu</h6>
+                                <small class="text-muted">{{ retard.date_fin_retard|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.timeline-content {
+    padding-left: 15px;
+}
+</style>
+{% endblock %} 

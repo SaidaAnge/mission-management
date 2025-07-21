@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if intervention %}Modifier l'intervention{% else %}Nouvelle intervention{% endif %} | 2N CORPORATE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo i {
+            color: white;
+            font-size: 20px;
+        }
+
+        .company-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: capitalize;
+        }
+
+        .nav-menu {
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: #666;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102,126,234,0.08);
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .help-text {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Styles pour les fichiers existants */
+        .section-subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-type {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-date {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-section">
+                    <div class="logo" style="background:none;box-shadow:none;">
+                        <img src="{% static 'images/logo_2n_corporate.png' %}" alt="Logo 2N Corporate" style="max-width:60px;max-height:60px;">
+                    </div>
+                    <div class="company-name">2N CORPORATE</div>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-details">
+                        <h4>{{ user.username }}</h4>
+                        <p>{{ user.role }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Tableau de bord
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'mission_list' %}" class="nav-link">
+                        <i class="fas fa-tasks"></i>
+                        Missions
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'intervention_list' %}" class="nav-link active">
+                        <i class="fas fa-tools"></i>
+                        Interventions
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'client_list' %}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        Clients
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        Rapports
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        Notifications
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'connexion' %}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Déconnexion
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 class="page-title">
+                    <i class="fas fa-tools"></i>
+                    {% if intervention %}Modifier l'intervention{% else %}Nouvelle intervention{% endif %}
+                </h1>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+                  <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <div class="form-container">
+                <!-- Affichage des erreurs de formulaire -->
+                {% if form.errors or formset.errors %}
+                    <div style="background: #ffebee; border: 1px solid #f44336; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <h4 style="color: #d32f2f; margin-bottom: 0.5rem;">Erreurs dans le formulaire :</h4>
+                        {% if form.errors %}
+                            <ul style="color: #d32f2f; margin-left: 1rem;">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if formset.errors %}
+                            <ul style="color: #d32f2f; margin-left: 1rem;">
+                                {% for form_errors in formset.errors %}
+                                    {% for field, errors in form_errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ field }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Informations de base -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Informations de base
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="{{ form.titre.id_for_label }}" class="form-label">
+                                    <i class="fas fa-heading"></i>
+                                    {{ form.titre.label }} *
+                                </label>
+                                {{ form.titre }}
+                                {% if form.titre.errors %}
+                                    <div class="error-message">{{ form.titre.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.mission.id_for_label }}" class="form-label">
+                                    <i class="fas fa-tasks"></i>
+                                    {{ form.mission.label }} *
+                                </label>
+                                {% if not is_admin_user and mission_instance %}
+                                    <input type="hidden" name="mission" value="{{ mission_instance.id }}">
+                                    <input type="text" class="form-input" value="{{ mission_instance.titre }} ({{ mission_instance.client.nom }})" readonly>
+                                {% else %}
+                                    {{ form.mission }}
+                                {% endif %}
+                                {% if form.mission.errors %}
+                                    <div class="error-message">{{ form.mission.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.intervenant.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    {{ form.intervenant.label }}
+                                </label>
+                                {{ form.intervenant }}
+                                {% if form.intervenant.errors %}
+                                    <div class="error-message">{{ form.intervenant.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.statut.id_for_label }}" class="form-label">
+                                    <i class="fas fa-flag"></i>
+                                    {{ form.statut.label }} *
+                                </label>
+                                {{ form.statut }}
+                                {% if form.statut.errors %}
+                                    <div class="error-message">{{ form.statut.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Planning -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            Planning
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ form.date.label }} *
+                                </label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                    <div class="error-message">{{ form.date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.date_echeance.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar-check"></i>
+                                    {{ form.date_echeance.label }} *
+                                </label>
+                                {{ form.date_echeance }}
+                                {% if form.date_echeance.errors %}
+                                    <div class="error-message">{{ form.date_echeance.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.priorite.id_for_label }}" class="form-label">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {{ form.priorite.label }} *
+                                </label>
+                                {{ form.priorite }}
+                                {% if form.priorite.errors %}
+                                    <div class="error-message">{{ form.priorite.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description et détails -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-file-alt"></i>
+                            Description et détails
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.ressources_utilisees.id_for_label }}" class="form-label">
+                                <i class="fas fa-tools"></i>
+                                {{ form.ressources_utilisees.label }}
+                            </label>
+                            {{ form.ressources_utilisees }}
+                            {% if form.ressources_utilisees.errors %}
+                                <div class="error-message">{{ form.ressources_utilisees.errors.0 }}</div>
+                            {% endif %}
+                            <div class="help-text">Listez les ressources utilisées lors de l'intervention</div>
+                        </div>
+                    </div>
+
+                    <!-- Pièces jointes -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-paperclip"></i>
+                            Pièces jointes
+                        </h2>
+                        <div id="piece-jointe-formset">
+                            {{ formset.management_form }}
+                            {% for piece_form in formset %}
+                                <div class="form-grid" style="border:1px solid #e1e5e9; border-radius:8px; margin-bottom:1rem; padding:1rem;">
+                                    {% for field in piece_form.visible_fields %}
+                                        <div class="form-group">
+                                            <label class="form-label">{{ field.label }}</label>
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="error-message">{{ field.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                    {% if piece_form.can_delete %}
+                                        <div class="form-group">
+                                            {{ piece_form.DELETE }} <label>Supprimer</label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addForm(this)"><i class="fas fa-plus"></i> Ajouter une pièce jointe</button>
+                    </div>
+                    <script>
+                    function addForm(btn) {
+                        var formsetDiv = document.getElementById('piece-jointe-formset');
+                        var totalForms = document.getElementById('id_form-TOTAL_FORMS');
+                        var currentFormCount = parseInt(totalForms.value);
+                        var emptyFormHtml = formsetDiv.querySelectorAll('.form-grid')[0].outerHTML.replace(/form-0/g, 'form-' + currentFormCount);
+                        formsetDiv.insertAdjacentHTML('beforeend', emptyFormHtml);
+                        totalForms.value = currentFormCount + 1;
+                    }
+                    </script>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <a href="{% url 'intervention_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            {% if intervention %}Mettre à jour{% else %}Créer{% endif %} l'intervention
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Amélioration de l'expérience utilisateur
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-focus sur le premier champ
+            const firstInput = document.querySelector('input, select, textarea');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            // Validation en temps réel
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.style.borderColor = '#f44336';
+                    } else {
+                        this.style.borderColor = '#667eea';
+                    }
+                });
+
+                input.addEventListener('input', function() {
+                    if (this.style.borderColor === 'rgb(244, 67, 54)') {
+                        this.style.borderColor = '#667eea';
+                    }
+                });
+            });
+
+            // Confirmation avant soumission
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+                submitBtn.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+{% block title %}Compte rendu d'intervention | 2N CORPORATE{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
+  <div class="container" style="max-width:480px;width:100%;background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(102,126,234,0.10);padding:2.5rem 2rem 2rem 2rem;">
+    <h1 style="font-size:1.5rem;margin-bottom:1.5rem;text-align:center;color:#667eea;font-weight:700;">
+      <i class="fas fa-tools"></i> Compte rendu d'intervention
+    </h1>
+    <div style="text-align:center;margin-bottom:1.2rem;">
+      <span style="font-weight:600;font-size:1.1rem;color:#764ba2;">{{ intervention.titre }}</span><br>
+      <span style="color:#888;font-size:0.95rem;">Mission : {{ intervention.mission.titre }}</span>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label" for="id_heure_arrivee" style="font-weight:600;color:#333;">Heure d'arrivée</label>
+        {{ form.heure_arrivee }}
+      </div>
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label" for="id_heure_depart" style="font-weight:600;color:#333;">Heure de départ</label>
+        {{ form.heure_depart }}
+      </div>
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label" for="id_ressources_utilisees" style="font-weight:600;color:#333;">Ressources utilisées</label>
+        {{ form.ressources_utilisees }}
+      </div>
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label" for="id_difficultes" style="font-weight:600;color:#333;">Difficultés rencontrées</label>
+        {{ form.difficultes }}
+      </div>
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label" for="id_etat_intervention" style="font-weight:600;color:#333;">État de l'intervention</label>
+        {{ form.etat_intervention }}
+      </div>
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label" for="id_compte_rendu" style="font-weight:600;color:#333;">Description / Compte rendu</label>
+        {{ form.compte_rendu }}
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:0.9rem 0;font-size:1.1rem;border-radius:10px;background:linear-gradient(135deg,#667eea,#764ba2);font-weight:700;letter-spacing:0.5px;">
+        <i class="fas fa-save"></i> Soumettre le compte rendu
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,108 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Résoudre le Retard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Résoudre le Retard
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Intervention :</strong> {{ retard.intervention.titre }}
+                        <br>
+                        <strong>Type de retard :</strong> {{ retard.get_type_retard_display }}
+                        <br>
+                        <strong>Date de début :</strong> {{ retard.date_debut_retard|date:"d/m/Y H:i" }}
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.date_fin_retard.id_for_label }}" class="form-label">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                {{ form.date_fin_retard.label }}
+                            </label>
+                            {{ form.date_fin_retard }}
+                            {% if form.date_fin_retard.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.date_fin_retard.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Date et heure de résolution du retard.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.resolu }}
+                                <label class="form-check-label" for="{{ form.resolu.id_for_label }}">
+                                    <i class="fas fa-check me-1"></i>
+                                    {{ form.resolu.label }}
+                                </label>
+                                {% if form.resolu.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.resolu.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-text">
+                                Cochez cette case pour marquer le retard comme résolu.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'retard_detail' retard.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Retour
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>
+                                Résoudre le Retard
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation des formulaires
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Initialiser la date de fin avec la date actuelle
+    const dateFinField = document.getElementById('{{ form.date_fin_retard.id_for_label }}');
+    if (dateFinField && !dateFinField.value) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        dateFinField.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+});
+</script>
+{% endblock %} 

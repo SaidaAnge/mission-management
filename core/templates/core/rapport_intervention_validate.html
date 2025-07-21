@@ -1,0 +1,232 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        Validation du rapport d'intervention
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+                      <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+
+                    <!-- Informations de l'intervention -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary">
+                                <i class="fas fa-tools me-2"></i>Intervention
+                            </h5>
+                            <p class="mb-1"><strong>Titre :</strong> {{ intervention.titre }}</p>
+                            <p class="mb-1"><strong>Date :</strong> {{ intervention.date|date:'d/m/Y' }}</p>
+                            <p class="mb-1"><strong>Statut :</strong> 
+                                <span class="badge bg-warning">{{ intervention.get_statut_display }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary">
+                                <i class="fas fa-project-diagram me-2"></i>Mission
+                            </h5>
+                            <p class="mb-1"><strong>Titre :</strong> {{ intervention.mission.titre }}</p>
+                            <p class="mb-1"><strong>Client :</strong> {{ intervention.mission.client.nom }}</p>
+                            <p class="mb-1"><strong>Intervenant :</strong> 
+                                {{ intervention.intervenant.first_name }} {{ intervention.intervenant.last_name }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Contenu du rapport -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">
+                            <i class="fas fa-file-alt me-2"></i>Contenu du rapport
+                        </h5>
+                        
+                        {% if rapport.travaux_realises %}
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Travaux réalisés</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ rapport.travaux_realises|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if rapport.resultat_final %}
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Résultat final</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ rapport.resultat_final|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if rapport.ressources_utilisees %}
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Ressources utilisées</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ rapport.ressources_utilisees|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if rapport.ameliorations_a_faire %}
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Améliorations à faire</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ rapport.ameliorations_a_faire|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Pièces jointes -->
+                    {% if rapport.fichiers_joints.all %}
+                    <div class="mb-4">
+                        <h5 class="text-primary">
+                            <i class="fas fa-paperclip me-2"></i>Pièces jointes
+                        </h5>
+                        <div class="row">
+                            {% for fichier in rapport.fichiers_joints.all %}
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <i class="fas fa-file me-2 text-primary"></i>
+                                    <div class="flex-grow-1">
+                                        <small class="text-muted">{{ fichier.description }}</small><br>
+                                        <a href="{{ fichier.fichier.url }}" target="_blank" class="text-decoration-none">
+                                            {{ fichier.fichier.name|slice:"19:" }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Images -->
+                    {% if rapport.images.all %}
+                    <div class="mb-4">
+                        <h5 class="text-primary">
+                            <i class="fas fa-images me-2"></i>Images
+                        </h5>
+                        <div class="row">
+                            {% for image in rapport.images.all %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.description }}">
+                                    <div class="card-body p-2">
+                                        <small class="text-muted">{{ image.description }}</small>
+                                        <span class="badge bg-info float-end">{{ image.get_type_image_display }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de validation -->
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-gavel me-2"></i>Décision
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="validation-form">
+                        {% csrf_token %}
+                        
+                        <!-- Action -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Action à effectuer</label>
+                            {% for radio in form.action %}
+                            <div class="form-check">
+                                {{ radio }}
+                                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                    {{ radio.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Commentaire de validation -->
+                        <div class="mb-3" id="commentaire-block" style="display: none;">
+                            <label for="{{ form.commentaire_validation.id_for_label }}" class="form-label">
+                                {{ form.commentaire_validation.label }}
+                            </label>
+                            {{ form.commentaire_validation }}
+                        </div>
+
+                        <!-- Motif de rejet -->
+                        <div class="mb-3" id="motif-block" style="display: none;">
+                            <label for="{{ form.motif_rejet.id_for_label }}" class="form-label">
+                                {{ form.motif_rejet.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.motif_rejet }}
+                        </div>
+
+                        <!-- Messages d'erreur -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <p class="mb-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Boutons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Confirmer la décision
+                            </button>
+                            <a href="{% url 'rapport_intervention' intervention.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const actionRadios = document.querySelectorAll('input[name="action"]');
+    const commentaireBlock = document.getElementById('commentaire-block');
+    const motifBlock = document.getElementById('motif-block');
+    
+    function toggleFields() {
+        const selectedAction = document.querySelector('input[name="action"]:checked');
+        
+        if (selectedAction) {
+            if (selectedAction.value === 'valider') {
+                commentaireBlock.style.display = 'block';
+                motifBlock.style.display = 'none';
+            } else if (selectedAction.value === 'rejeter') {
+                commentaireBlock.style.display = 'none';
+                motifBlock.style.display = 'block';
+            }
+        }
+    }
+    
+    actionRadios.forEach(radio => {
+        radio.addEventListener('change', toggleFields);
+    });
+    
+    // Initialiser l'affichage
+    toggleFields();
+});
+</script>
+{% endblock %} 

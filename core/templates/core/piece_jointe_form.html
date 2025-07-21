@@ -1,0 +1,83 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Ajouter une pièce jointe{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Ajouter une pièce jointe</h1>
+                <a href="{% url 'intervention_detail' intervention.id %}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Retour à l'intervention
+                </a>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-2">Intervention : {{ intervention.titre }}</h2>
+                <p class="text-gray-600">Mission : {{ intervention.mission.titre }}</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="{{ form.titre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.titre.label }}
+                    </label>
+                    {{ form.titre }}
+                    {% if form.titre.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.titre.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.fichier.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.fichier.label }}
+                    </label>
+                    {{ form.fichier }}
+                    {% if form.fichier.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.fichier.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-sm text-gray-500 mt-1">
+                        Formats acceptés : Images (JPG, PNG, GIF), Documents (PDF, DOC, DOCX), 
+                        Tableurs (XLS, XLSX), Texte (TXT)
+                    </p>
+                </div>
+
+                <div>
+                    <label for="{{ form.type_fichier.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.type_fichier.label }}
+                    </label>
+                    {{ form.type_fichier }}
+                    {% if form.type_fichier.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.type_fichier.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex justify-end space-x-4 pt-6">
+                    <a href="{% url 'intervention_detail' intervention.id %}" 
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors">
+                        Annuler
+                    </a>
+                    <button type="submit" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                        Ajouter la pièce jointe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

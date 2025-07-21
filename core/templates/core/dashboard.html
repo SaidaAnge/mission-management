@@ -1,0 +1,338 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Tableau de bord - 2N CORPORATE{% endblock %}
+
+{% block content %}
+<style>
+.stats-row {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+.stats-card {
+    background: #fafbfc;
+    border-radius: 22px;
+    box-shadow: 0 4px 24px 0 rgba(102,126,234,0.18);
+    min-width: 300px;
+    max-width: 370px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.7rem 2.5rem 2.7rem 2.2rem;
+    margin: 0;
+    transition: box-shadow 0.2s, border 0.2s;
+    height: 150px;
+    border: 3px solid transparent;
+}
+.stats-card .stats-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.stats-card .stats-number {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 0.2rem;
+}
+.stats-card .stats-label {
+    color: #666;
+    font-size: 1.15rem;
+    font-weight: 500;
+}
+.stats-card .stats-icon {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: #fff;
+    box-shadow: 0 4px 18px 0 rgba(102,126,234,0.18);
+}
+.stats-mission { box-shadow: 0 4px 24px 0 rgba(61, 94, 240, 0.35); border-color:rgb(54, 85, 223); }
+.stats-intervention { box-shadow: 0 4px 24px 0 rgba(40,167,69,0.35); border-color:rgb(31, 129, 54); }
+.stats-client { box-shadow: 0 4px 24px 0 rgba(255,193,7,0.35); border-color:rgb(223, 159, 8); }
+.stats-rapport { box-shadow: 0 4px 24px 0 rgba(233,30,99,0.35); border-color:rgb(221, 19, 19); }
+.stats-mission .stats-icon { background: linear-gradient(135deg,#667eea,#764ba2); }
+.stats-intervention .stats-icon { background: linear-gradient(135deg,#28a745,#20c997); }
+.stats-client .stats-icon { background: linear-gradient(135deg,#ffb300,#ff9800); }
+.stats-rapport .stats-icon { background: linear-gradient(135deg,#e91e63,#ff6f91); }
+@media (max-width: 1100px) {
+  .stats-row { gap: 1.2rem; }
+  .stats-card { min-width: 220px; padding: 1.7rem 1rem 1.7rem 1rem; height: 120px; }
+}
+@media (max-width: 800px) {
+  .stats-row { flex-direction: column; align-items: center; flex-wrap: wrap; }
+  .stats-card { width: 90%; max-width: 400px; margin-bottom: 1rem; }
+}
+.btn-orange, .btn-success.btn-lg, .btn-info.btn-lg {
+    font-size: 1.18rem !important;
+    padding: 0.85rem 2.1rem !important;
+    border-radius: 12px !important;
+}
+.btn-orange, .btn-orange:visited {
+    background-color: #ff9800 !important;
+    background: #ff9800 !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 2px 8px 0 rgba(255,152,0,0.12) !important;
+}
+.btn-orange:hover, .btn-orange:focus, .btn-orange:active {
+    background-color: #ffb300 !important;
+    background: #ffb300 !important;
+    color: #fff !important;
+}
+.table-container { position: relative; z-index: 1; }
+.dropdown-menu { z-index: 1050 !important; }
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-en_attente {
+    background: rgba(255, 152, 0, 0.1);
+    color: #f57c00;
+}
+.status-en_cours {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+.status-terminee {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+.status-annulee {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+</style>
+
+<div class="header">
+    <h1 class="page-title">Tableau de bord</h1>
+    <div class="header-actions">
+        {% if user.role == 'administrateur' %}
+        <a href="{% url 'mission_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Nouvelle Mission
+        </a>
+        <a href="{% url 'intervention_create' %}" class="btn btn-success">
+            <i class="fas fa-tools"></i>
+            Nouvelle Intervention
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="stats-row">
+  <div class="stats-card stats-mission">
+    <div class="stats-info">
+      <div class="stats-number">{{ total_missions }}</div>
+      <div class="stats-label">Missions</div>
+    </div>
+    <div class="stats-icon">
+      <i class="fas fa-tasks"></i>
+    </div>
+  </div>
+  <div class="stats-card stats-intervention">
+    <div class="stats-info">
+      <div class="stats-number">{{ total_interventions }}</div>
+      <div class="stats-label">Interventions</div>
+    </div>
+    <div class="stats-icon">
+      <i class="fas fa-tools"></i>
+    </div>
+  </div>
+  <div class="stats-card stats-client">
+    <div class="stats-info">
+      <div class="stats-number">{{ total_clients }}</div>
+      <div class="stats-label">Clients</div>
+    </div>
+    <div class="stats-icon">
+      <i class="fas fa-users"></i>
+    </div>
+  </div>
+  <div class="stats-card stats-rapport">
+    <div class="stats-info">
+      <div class="stats-number">{{ total_rapports }}</div>
+      <div class="stats-label">Rapports</div>
+    </div>
+    <div class="stats-icon">
+      <i class="fas fa-file-alt"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="card" style="margin-bottom:1.2rem;">
+    <div class="card-header" style="padding:0.7rem 1.2rem;">
+        <h5 style="font-size:1.18rem;"><i class="fas fa-bolt"></i> Actions rapides</h5>
+    </div>
+    <div class="card-body" style="padding:1.1rem 1.2rem;">
+        <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;">
+            {% if user.role == 'administrateur' %}
+            <a href="{% url 'mission_list' %}" class="btn btn-orange btn-lg">
+                <i class="fas fa-tasks"></i>
+                Voir toutes les missions
+            </a>
+            <a href="{% url 'intervention_list' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-tools"></i>
+                Voir toutes les interventions
+            </a>
+            {% else %}
+            <a href="{% url 'mission_list' %}" class="btn btn-orange btn-lg">
+                <i class="fas fa-tasks"></i>
+                Voir mes missions
+            </a>
+            <a href="{% url 'intervention_list' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-tools"></i>
+                Voir mes interventions
+            </a>
+            {% endif %}
+            <a href="{% url 'notification_list' %}" class="btn btn-info btn-lg">
+                <i class="fas fa-bell"></i>
+                Notifications
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Missions récentes -->
+<div class="card" style="margin-bottom:0.7rem;">
+    <div class="card-header" style="padding:0.5rem 1rem;">
+        <h5 style="font-size:1.1rem;"><i class="fas fa-tasks"></i> Missions récentes</h5>
+    </div>
+    <div class="card-body" style="padding:0.7rem 1rem;">
+        {% if missions %}
+        <div class="table-responsive">
+            <table class="table table-sm" style="font-size:0.97rem;">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        {% if user.role == 'administrateur' %}
+                        <th>Assigné à</th>
+                        {% endif %}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mission in missions %}
+                    <tr>
+                        <td>{{ mission.titre }}</td>
+                        <td>{{ mission.client.nom }}</td>
+                        <td>{{ mission.date }}</td>
+                        <td>
+                            <span class="status-badge status-{{ mission.statut }}">
+                                {{ mission.get_statut_display }}
+                            </span>
+                        </td>
+                        {% if user.role == 'administrateur' %}
+                        <td>
+                            {% if mission.assigne_a %}
+                            {{ mission.assigne_a.get_full_name|default:mission.assigne_a.username }}
+                            {% else %}
+                            <span style="color: #dc3545;">Non assignée</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        <td>
+                            <a href="{% url 'mission_detail' mission.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if user.role == 'administrateur' %}
+                            <a href="{% url 'mission_edit' mission.id %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 1rem;">
+            <i class="fas fa-tasks" style="font-size: 2rem; color: #ccc; margin-bottom: 0.5rem;"></i>
+            <p style="color: #666; font-size:0.97rem;">Aucune mission trouvée</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Interventions récentes -->
+<div class="card" style="margin-bottom:0.7rem;">
+    <div class="card-header" style="padding:0.5rem 1rem;">
+        <h5 style="font-size:1.1rem;"><i class="fas fa-tools"></i> Interventions récentes</h5>
+    </div>
+    <div class="card-body" style="padding:0.7rem 1rem;">
+        {% if interventions %}
+        <div class="table-responsive">
+            <table class="table table-sm" style="font-size:0.97rem;">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Mission</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        {% if user.role == 'administrateur' %}
+                        <th>Intervenant</th>
+                        {% endif %}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for intervention in interventions %}
+                    <tr>
+                        <td>{{ intervention.titre }}</td>
+                        <td>{{ intervention.mission.titre }}</td>
+                        <td>{{ intervention.date }}</td>
+                        <td>
+                            <span class="status-badge status-{{ intervention.statut }}">
+                                {{ intervention.get_statut_display }}
+                            </span>
+                        </td>
+                        {% if user.role == 'administrateur' %}
+                        <td>
+                            {% if intervention.intervenant %}
+                            {{ intervention.intervenant.get_full_name|default:intervention.intervenant.username }}
+                            {% else %}
+                            <span style="color: #dc3545;">Non assignée</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        <td>
+                            <a href="{% url 'intervention_detail' intervention.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if user.role == 'administrateur' %}
+                            <a href="{% url 'intervention_edit' intervention.id %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 1rem;">
+            <i class="fas fa-tools" style="font-size: 2rem; color: #ccc; margin-bottom: 0.5rem;"></i>
+            <p style="color: #666; font-size:0.97rem;">Aucune intervention trouvée</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription | 2N CORPORATE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(135deg, #0d47a1 0%, #1976d2 50%, #42a5f5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-container {
+            background: rgba(255,255,255,0.97);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(13,71,161,0.18);
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        .register-title {
+            color: #1565c0;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+        }
+        .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+        .register-form input,
+        .register-form select {
+            padding: 0.8rem 1rem;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #e3f2fd;
+            color: #0d47a1;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .register-form input:focus,
+        .register-form select:focus {
+            border: 1.5px solid #1976d2;
+        }
+        .register-form button {
+            background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px 0 rgba(25,118,210,0.12);
+            transition: background 0.2s;
+        }
+        .register-form button:hover {
+            background: linear-gradient(90deg, #1565c0 0%, #1976d2 100%);
+        }
+        .error-message {
+            color: #d32f2f;
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            border-radius: 6px;
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        .login-link {
+            margin-top: 1.2rem;
+            font-size: 1rem;
+        }
+        .login-link a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 500px) {
+            .register-container {
+                padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+            }
+            .register-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-title">Créer un compte</div>
+        {% if form.errors %}
+            <div class="error-message">Veuillez corriger les erreurs dans le formulaire.</div>
+        {% endif %}
+        <form method="post" class="register-form" autocomplete="off">
+            {% csrf_token %}
+            {% for field in form %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {{ field }}
+            {% endfor %}
+            <button type="submit">S'inscrire</button>
+        </form>
+        <div class="login-link">
+            Déjà un compte ? <a href="{% url 'connexion' %}">Se connecter</a>
+        </div>
+    </div>
+</body>
+</html> 

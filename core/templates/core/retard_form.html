@@ -1,0 +1,159 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if retard %}Modifier le Retard{% else %}Nouveau Retard{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        {% if retard %}Modifier le Retard{% else %}Signaler un Retard{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Intervention :</strong> {{ intervention.titre }}
+                        <br>
+                        <strong>Mission :</strong> {{ intervention.mission.titre }}
+                        <br>
+                        <strong>Échéance :</strong> {{ intervention.date_echeance|date:"d/m/Y" }}
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.type_retard.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tag me-1"></i>
+                                        {{ form.type_retard.label }}
+                                    </label>
+                                    {{ form.type_retard }}
+                                    {% if form.type_retard.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.type_retard.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.date_debut_retard.id_for_label }}" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ form.date_debut_retard.label }}
+                                    </label>
+                                    {{ form.date_debut_retard }}
+                                    {% if form.date_debut_retard.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.date_debut_retard.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.motif.id_for_label }}" class="form-label">
+                                <i class="fas fa-comment me-1"></i>
+                                {{ form.motif.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.motif }}
+                            {% if form.motif.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.motif.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Décrivez en détail les raisons du retard et les circonstances.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.impact.id_for_label }}" class="form-label">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                {{ form.impact.label }}
+                            </label>
+                            {{ form.impact }}
+                            {% if form.impact.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.impact.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Décrivez l'impact de ce retard sur la mission et le client.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.actions_correctives.id_for_label }}" class="form-label">
+                                <i class="fas fa-tools me-1"></i>
+                                {{ form.actions_correctives.label }}
+                            </label>
+                            {{ form.actions_correctives }}
+                            {% if form.actions_correctives.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.actions_correctives.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Décrivez les actions correctives prévues pour résoudre le retard.
+                            </div>
+                        </div>
+
+                        {% if user.role == 'administrateur' %}
+                        <div class="mb-3">
+                            <label for="{{ form.responsable.id_for_label }}" class="form-label">
+                                <i class="fas fa-user me-1"></i>
+                                {{ form.responsable.label }}
+                            </label>
+                            {{ form.responsable }}
+                            {% if form.responsable.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.responsable.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'intervention_detail' intervention.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Retour
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>
+                                {% if retard %}Modifier{% else %}Enregistrer{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation des formulaires
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %} 

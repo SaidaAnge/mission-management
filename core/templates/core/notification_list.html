@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Notifications | 2N CORPORATE{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <h1 class="page-title">Notifications</h1>
+        <div class="header-actions">
+            <a href="{% url 'notification_mark_all_read' %}" class="btn btn-success">
+                <i class="fas fa-check-double"></i>
+                Tout marquer comme lu
+            </a>
+        </div>
+    </div>
+    <div class="table-container" style="background: rgba(255,255,255,0.97); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.10); padding: 2rem; margin-bottom:2rem;">
+        {% if notifications %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                    <tr {% if not notification.lue %}style="background:rgba(255,193,7,0.08);"{% endif %}>
+                        <td style="font-weight:600; color:#333;">{{ notification.message }}</td>
+                        <td style="color:#888;">{{ notification.date_creation|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if notification.lue %}
+                                <span class="badge bg-success">Lue</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Non lue</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center;">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i> Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% if not notification.lue %}
+                                    <li><a class="dropdown-item" href="{% url 'notification_mark_read' notification.id %}"><i class="fas fa-check text-success me-2"></i>Marquer comme lue</a></li>
+                                    {% endif %}
+                                    <li><a class="dropdown-item text-danger" href="{% url 'notification_delete' notification.id %}"><i class="fas fa-trash me-2"></i>Supprimer</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div style="text-align:center; color:#888; padding:2rem;">Aucune notification pour le moment.</div>
+        {% endif %}
+    </div>
+{% endblock %} 

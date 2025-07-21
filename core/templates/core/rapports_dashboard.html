@@ -1,0 +1,151 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<style>
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-en_attente {
+    background: rgba(255, 152, 0, 0.1);
+    color: #f57c00;
+}
+.status-en_cours {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+.status-terminee {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+.status-annulee {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+.status-brouillon {
+    background: rgba(160, 160, 160, 0.15);
+    color: #555;
+}
+.status-soumis {
+    background: rgba(33, 150, 243, 0.12);
+    color: #2196f3;
+}
+.status-valide {
+    background: rgba(76, 175, 80, 0.13);
+    color: #388e3c;
+}
+</style>
+<div class="container mt-4">
+    <h2>Rapports</h2>
+    
+    {% if user.role == 'administrateur' %}
+    <!-- Section Missions (admin uniquement) -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Rapports de Missions</h3>
+        </div>
+        <div class="card-body">
+            {% if missions %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mission</th>
+                                <th>Client</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mission in missions %}
+                            <tr>
+                                <td>
+                                    <strong>{{ mission.titre }}</strong><br>
+                                    <small class="text-muted">{{ mission.nature }}</small>
+                                </td>
+                                <td>{{ mission.client.nom }}</td>
+                                <td>{{ mission.date|date:'d/m/Y' }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ mission.statut }}">
+                                        {{ mission.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'rapport_mission' mission.id %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{% url 'generer_pdf_mission' mission.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-download"></i> PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">Aucune mission disponible.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section Rapports d'Interventions -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Mes Rapports d'Intervention</h3>
+        </div>
+        <div class="card-body">
+            {% if rapports %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Intervention</th>
+                                <th>Mission</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rapport in rapports %}
+                            <tr>
+                                <td>
+                                    <strong>{{ rapport.intervention.titre }}</strong>
+                                </td>
+                                <td>
+                                    {{ rapport.intervention.mission.titre }}<br>
+                                    <small class="text-muted">{{ rapport.intervention.mission.client.nom }}</small>
+                                </td>
+                                <td>{{ rapport.intervention.date|date:'d/m/Y' }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ rapport.statut }}">
+                                        {{ rapport.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'rapport_intervention' rapport.intervention.id %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{% url 'generer_pdf_intervention' rapport.intervention.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-download"></i> PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">Aucun rapport disponible.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

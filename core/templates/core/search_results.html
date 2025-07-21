@@ -1,0 +1,183 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Résultats de recherche</h2>
+                    {% if query %}
+                        <p class="text-muted">Résultats pour : "{{ query }}"</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if query %}
+                <!-- Missions -->
+                {% if results.missions %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4><i class="fas fa-tasks"></i> Missions ({{ results.missions|length }})</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mission</th>
+                                        <th>Client</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mission in results.missions %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ mission.titre }}</strong><br>
+                                            <small class="text-muted">{{ mission.nature }}</small>
+                                        </td>
+                                        <td>{{ mission.client.nom }}</td>
+                                        <td>{{ mission.date|date:'d/m/Y' }}</td>
+                                        <td>
+                                            <span class="badge badge-{{ mission.statut }}">
+                                                {{ mission.get_statut_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'mission_detail' mission.id %}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Interventions -->
+                {% if results.interventions %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4><i class="fas fa-tools"></i> Interventions ({{ results.interventions|length }})</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Intervention</th>
+                                        <th>Mission</th>
+                                        <th>Intervenant</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for intervention in results.interventions %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ intervention.titre }}</strong>
+                                        </td>
+                                        <td>
+                                            {{ intervention.mission.titre }}<br>
+                                            <small class="text-muted">{{ intervention.mission.client.nom }}</small>
+                                        </td>
+                                        <td>
+                                            {% if intervention.intervenant %}
+                                                {{ intervention.intervenant.first_name }} {{ intervention.intervenant.last_name }}
+                                            {% else %}
+                                                <span class="text-muted">Non assigné</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ intervention.date|date:'d/m/Y' }}</td>
+                                        <td>
+                                            <span class="badge badge-{{ intervention.statut }}">
+                                                {{ intervention.get_statut_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'intervention_detail' intervention.id %}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Clients -->
+                {% if results.clients %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4><i class="fas fa-users"></i> Clients ({{ results.clients|length }})</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Client</th>
+                                        <th>Contact</th>
+                                        <th>Email</th>
+                                        <th>Téléphone</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for client in results.clients %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ client.nom }}</strong>
+                                        </td>
+                                        <td>{{ client.contact }}</td>
+                                        <td>{{ client.email }}</td>
+                                        <td>{{ client.telephone }}</td>
+                                        <td>
+                                            <a href="{% url 'client_edit' client.id %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Aucun résultat -->
+                {% if not results.missions and not results.interventions and not results.clients %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>Aucun résultat trouvé</h4>
+                        <p class="text-muted">Aucun élément ne correspond à votre recherche "{{ query }}".</p>
+                        <p class="text-muted">Essayez avec d'autres mots-clés.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>Recherche</h4>
+                        <p class="text-muted">Entrez un terme de recherche pour trouver des missions, interventions ou clients.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,228 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Rapport d'Intervention : {{ intervention.titre }}</h2>
+                    {% if rapport %}
+                        <p class="text-muted">Numéro : {{ rapport.numero_intervention }}</p>
+                    {% endif %}
+                </div>
+                <div class="btn-group">
+                    {% if rapport %}
+                        <a href="{% url 'generer_pdf_intervention' intervention.id %}" class="btn btn-success">
+                            <i class="fas fa-download"></i> PDF
+                        </a>
+                        {% if rapport.statut in 'brouillon rejete' and user == intervention.intervenant and rapport.statut != 'valide' %}
+                            <a href="{% url 'rapport_intervention_edit' intervention.id %}" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                        {% endif %}
+                        {% if user.role == 'administrateur' and rapport.statut == 'soumis' %}
+                            <a href="{% url 'rapport_intervention_validate' intervention.id %}" class="btn btn-warning">
+                                <i class="fas fa-gavel"></i> Valider/Rejeter
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'rapport_intervention_create' intervention.id %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Créer le rapport
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+              <i class="fas fa-arrow-left"></i> Retour
+            </a>
+
+            {% if rapport %}
+                <!-- 1. En-tête administratif -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>1. En-tête administratif</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Numéro d'intervention :</strong> {{ intervention.id }}</p>
+                                <p><strong>Date et heure de début :</strong> 
+                                  {% if intervention.date_debut %}
+                                    {{ intervention.date_debut|date:'d/m/Y H:i' }}
+                                  {% else %}-{% endif %}
+                                </p>
+                                <p><strong>Date et heure de fin :</strong> 
+                                  {% if intervention.date_fin %}
+                                    {{ intervention.date_fin|date:'d/m/Y H:i' }}
+                                  {% else %}-{% endif %}
+                                </p>
+                                <p><strong>Mission associée :</strong> {{ intervention.mission.titre }}</p>
+                                <p><strong>Client :</strong> {{ intervention.mission.client.nom }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Intervenant :</strong> {{ intervention.intervenant }}</p>
+                                <p><strong>Rôle :</strong> {{ intervention.intervenant.get_role_display }}</p>
+                                <p><strong>Lieu :</strong> {{ intervention.mission.client.adresse }}</p>
+                                <p><strong>Durée de travail :</strong> 
+                                  {{ intervention.calculer_duree_travail }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--2. Déroulement et actions réalisées -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>2. Déroulement et actions réalisées</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Travaux réalisés :</h6>
+                            <p>{{ rapport.travaux_realises|linebreaks }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Résultat final :</h6>
+                            <p>{{ rapport.resultat_final|linebreaks }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Ressources utilisées :</h6>
+                            <p>{{ rapport.ressources_utilisees|linebreaks }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Améliorations à faire :</h6>
+                            <p>{{ rapport.ameliorations_a_faire|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Preuves -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>3. Preuves</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if rapport.fichiers_joints.all %}
+                            <div class="row">
+                                {% for fichier in rapport.fichiers_joints.all %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="border rounded p-3">
+                                        <h6>{{ fichier.description|default:"Fichier joint" }}</h6>
+                                        <p class="text-muted small">{{ fichier.fichier.name }}</p>
+                                        <a href="{{ fichier.fichier.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> Télécharger
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Aucune preuve ajoutée.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 4. Validation -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>4. Validation</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Statut :</strong> 
+                                    <span class="badge badge-{{ rapport.statut }}">
+                                        {{ rapport.get_statut_display }}
+                                    </span>
+                                </p>
+                                {% if rapport.statut == 'valide' %}
+                                    {% if rapport.valide_par %}
+                                    <p><strong>Validé par :</strong> {{ rapport.valide_par.first_name }} {{ rapport.valide_par.last_name }}</p>
+                                    {% endif %}
+                                    {% if rapport.date_validation %}
+                                    <p><strong>Date de validation :</strong> {{ rapport.date_validation|date:"d/m/Y H:i" }}</p>
+                                    {% endif %}
+                                {% elif rapport.statut == 'rejete' %}
+                                    {% if rapport.rejete_par %}
+                                    <p><strong>Rejeté par :</strong> {{ rapport.rejete_par.first_name }} {{ rapport.rejete_par.last_name }}</p>
+                                    {% endif %}
+                                    {% if rapport.date_validation %}
+                                    <p><strong>Date de rejet :</strong> {{ rapport.date_validation|date:"d/m/Y H:i" }}</p>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {% if rapport.statut == 'valide' and rapport.commentaire_validation %}
+                                <h6>Commentaire de validation :</h6>
+                                <div class="p-3 bg-success bg-opacity-10 rounded border border-success">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    {{ rapport.commentaire_validation|linebreaks }}
+                                </div>
+                                {% endif %}
+                                {% if rapport.statut == 'rejete' and rapport.motif_rejet %}
+                                <h6>Motif du rejet :</h6>
+                                <div class="p-3 bg-danger bg-opacity-10 rounded border border-danger">
+                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                    {{ rapport.motif_rejet|linebreaks }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if rapport %}
+                    <div class="mb-3">
+                        {% if user == intervention.intervenant and rapport.statut == 'rejete' and rapport.statut != 'valide' %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Rapport rejeté</strong> - Vous pouvez modifier et resoumettre votre rapport.
+                                <div class="mt-2">
+                                    <a href="{% url 'rapport_intervention_edit' intervention.id %}" class="btn btn-warning btn-sm me-2">
+                                        <i class="fas fa-edit"></i> Modifier le rapport
+                                    </a>
+                                    <a href="{% url 'rapport_intervention_submit' intervention.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-paper-plane"></i> Resoumettre
+                                    </a>
+                                </div>
+                            </div>
+                        {% elif user == intervention.intervenant and rapport.statut == 'brouillon' and rapport.statut != 'valide' %}
+                            <a href="{% url 'rapport_intervention_submit' intervention.id %}" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i> Soumettre le rapport
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <!-- Aucun rapport créé -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <h4>Aucun rapport détaillé créé</h4>
+                        <p class="text-muted">Créez un rapport détaillé pour cette intervention avec toutes les informations requises.</p>
+                        <a href="{% url 'rapport_intervention_create' intervention.id %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Créer le rapport détaillé
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+.badge-resolu { background-color: #d4edda; color: #155724; }
+.badge-partiellement { background-color: #fff3cd; color: #856404; }
+.badge-non_resolu { background-color: #f8d7da; color: #721c24; }
+.badge-en_attente { background-color: #e2e3e5; color: #383d41; }
+.badge-valide { background-color: #d4edda; color: #155724; }
+.badge-rejete { background-color: #f8d7da; color: #721c24; }
+</style>
+{% endblock %} 

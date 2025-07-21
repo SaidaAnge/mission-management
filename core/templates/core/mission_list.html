@@ -1,0 +1,163 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Gestion des Missions | 2N CORPORATE{% endblock %}
+
+{% block content %}
+<style>
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-en_attente {
+    background: rgba(255, 152, 0, 0.1);
+    color: #f57c00;
+}
+.status-en_cours {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+.status-terminee {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+.status-annulee {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+</style>
+    <div class="header">
+        <h1 class="page-title">
+            {% if user.role == 'administrateur' %}
+            Gestion des Missions
+            {% else %}
+            Mes Missions
+            {% endif %}
+        </h1>
+        <div class="header-actions">
+            {% if user.role == 'administrateur' %}
+            <a href="{% url 'mission_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Nouvelle Mission
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if missions %}
+    <div class="table-container" style="background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); border-radius: 20px; padding: 2.5rem 2rem; box-shadow: 0 8px 32px rgba(102,126,234,0.10); margin-bottom:2rem;">
+        <table class="table" style="border-radius: 16px;">
+            <thead>
+                <tr style="background:rgba(102,126,234,0.07);">
+                    <th style="color:#667eea;font-weight:700;">Mission</th>
+                    <th style="color:#667eea;font-weight:700;">Client</th>
+                    <th style="color:#667eea;font-weight:700;">Date</th>
+                    <th style="color:#667eea;font-weight:700;">Lieu</th>
+                    {% if user.role == 'administrateur' %}
+                    <th style="color:#667eea;font-weight:700;">Assigné à</th>
+                    {% endif %}
+                    <th style="color:#667eea;font-weight:700;">Statut</th>
+                    <th style="color:#667eea;font-weight:700;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mission in missions %}
+                <tr style="transition:background 0.2s;" onmouseover="this.style.background='#f3f6fd'" onmouseout="this.style.background='';">
+                    <td>
+                        <div class="mission-title" style="font-weight:600;font-size:1.1rem;">{{ mission.titre }}</div>
+                        <div class="mission-client" style="color:#764ba2;font-size:0.95rem;">{{ mission.nature }}</div>
+                    </td>
+                    <td style="font-size:0.98rem;">{{ mission.client.nom }}</td>
+                    <td>{{ mission.date|date:"d/m/Y" }}</td>
+                    <td>{{ mission.lieu }}</td>
+                    {% if user.role == 'administrateur' %}
+                    <td>
+                        {% if mission.assigne_a %}
+                            <span style="font-weight:500;">{{ mission.assigne_a.get_full_name|default:mission.assigne_a.username }}</span>
+                        {% else %}
+                            <span style="color: #999;">Non assigné</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    <td>
+                        <span class="status-badge status-{{ mission.statut }}" style="font-size:0.95rem;">
+                            {% if mission.statut == 'en_attente' %}
+                                <i class="fas fa-clock" style="margin-right:0.3em;"></i> En attente
+                            {% elif mission.statut == 'en_cours' %}
+                                <i class="fas fa-play-circle" style="margin-right:0.3em;"></i> En cours
+                            {% elif mission.statut == 'terminee' %}
+                                <i class="fas fa-check-circle" style="margin-right:0.3em;"></i> Terminée
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i> Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'mission_detail' mission.id %}"><i class="fas fa-eye text-secondary me-2"></i>Détails</a></li>
+                                <li><a class="dropdown-item" href="{% url 'rapport_mission' mission.id %}"><i class="fas fa-file-alt text-info me-2"></i>Rapport</a></li>
+                                {% if user.role == 'administrateur' %}
+                                    <li><a class="dropdown-item" href="{% url 'mission_edit' mission.id %}"><i class="fas fa-edit text-success me-2"></i>Modifier</a></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'mission_delete' mission.id %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette mission ?')"><i class="fas fa-trash me-2"></i>Supprimer</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'intervention_create' %}?mission_id={{ mission.id }}"><i class="fas fa-plus text-primary me-2"></i>Ajouter intervention</a></li>
+                                {% elif mission.assigne_a and mission.assigne_a.id == user.id %}
+                                    <li><a class="dropdown-item" href="{% url 'intervention_create' %}?mission_id={{ mission.id }}"><i class="fas fa-plus text-primary me-2"></i>Ajouter intervention</a></li>
+                                {% endif %}
+                                {% if mission.statut == 'en_attente' %}
+                                    <li><a class="dropdown-item" href="#" onclick="return confirm('Voulez-vous commencer cette mission ?')"><i class="fas fa-play text-warning me-2"></i>Commencer</a></li>
+                                {% elif mission.statut == 'en_cours' %}
+                                    <li><a class="dropdown-item" href="#" onclick="return confirm('Voulez-vous terminer cette mission ?')"><i class="fas fa-check text-success me-2"></i>Terminer</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="display:flex;justify-content:center;align-items:center;min-height:50vh;">
+        <div style="background:rgba(255,255,255,0.97);border-radius:20px;box-shadow:0 8px 32px rgba(102,126,234,0.10);padding:3rem 2rem;text-align:center;max-width:400px;width:100%;">
+            <i class="fas fa-tasks" style="font-size:3rem;color:#667eea;margin-bottom:1rem;"></i>
+            <h3 style="font-size:1.5rem;font-weight:700;color:#1a1a1a;margin-bottom:1rem;">
+                {% if user.role == 'administrateur' %}
+                Aucune mission trouvée
+                {% else %}
+                Aucune mission assignée
+                {% endif %}
+            </h3>
+            <p style="color:#666;margin-bottom:2rem;">
+                {% if user.role == 'administrateur' %}
+                Commencez par créer votre première mission pour gérer vos interventions.
+                {% else %}
+                Vous n'avez pas encore de missions assignées. Contactez votre administrateur.
+                {% endif %}
+            </p>
+            {% if user.role == 'administrateur' %}
+            <a href="{% url 'mission_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Créer une mission
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %} 

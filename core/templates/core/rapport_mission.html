@@ -1,0 +1,38 @@
+{% extends 'core/dashboard.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Rapport de Mission : {{ mission.titre }}</h2>
+    <a href="{% url 'generer_pdf_mission' mission.id %}" class="btn btn-primary mb-3">Générer le PDF</a>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Informations de la mission</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><b>Client :</b> {{ mission.client.nom }}</li>
+                <li class="list-group-item"><b>Description :</b> {{ mission.description }}</li>
+                <li class="list-group-item"><b>Nature :</b> {{ mission.nature }}</li>
+                <li class="list-group-item"><b>Date de début :</b> {{ mission.date|date:'d/m/Y' }}</li>
+                <li class="list-group-item"><b>Lieu :</b> {{ mission.lieu }}</li>
+                <li class="list-group-item"><b>Fréquence :</b> {{ mission.frequence|default:'Non spécifiée' }}</li>
+                <li class="list-group-item"><b>Assigné à :</b> {{ mission.assigne_a }}</li>
+                <li class="list-group-item"><b>Statut :</b> {{ mission.get_statut_display }}</li>
+                <li class="list-group-item"><b>Date de création :</b> {{ mission.date_creation|date:'d/m/Y H:i' }}</li>
+            </ul>
+        </div>
+    </div>
+    <h4>Interventions liées</h4>
+    {% if interventions %}
+        <ul class="list-group mb-4">
+            {% for intervention in interventions %}
+            <li class="list-group-item">
+                <b>{{ intervention.titre }}</b> — {{ intervention.date|date:'d/m/Y' }} à {{ intervention.lieu }}<br>
+                <b>Intervenant :</b> {{ intervention.intervenant }}<br>
+                <b>Statut :</b> {{ intervention.get_statut_display }}<br>
+                <a href="{% url 'rapport_intervention' intervention.id %}" class="btn btn-sm btn-outline-info mt-2">Voir rapport intervention</a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune intervention pour cette mission.</p>
+    {% endif %}
+</div>
+{% endblock %} 

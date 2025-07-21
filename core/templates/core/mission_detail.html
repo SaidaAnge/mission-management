@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de la mission | 2N CORPORATE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo i {
+            color: white;
+            font-size: 20px;
+        }
+
+        .company-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: capitalize;
+        }
+
+        .nav-menu {
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: #666;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102,126,234,0.08);
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Mission Details */
+        .mission-details {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            color: #667eea;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-en_attente {
+            background: rgba(255, 152, 0, 0.1);
+            color: #f57c00;
+        }
+
+        .status-en_cours {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .status-terminee {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+
+        .status-annulee {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .description-box {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .description-text {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        /* Actions Sidebar */
+        .actions-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .action-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .action-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Interventions Section */
+        .interventions-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .interventions-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .intervention-item {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .intervention-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .intervention-title {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .intervention-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .intervention-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .no-interventions {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .no-interventions i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mission-details {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-card, .action-card, .interventions-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-section">
+                    <div class="logo" style="background:none;box-shadow:none;">
+                        <img src="{% static 'images/logo_2n_corporate.png' %}" alt="Logo 2N Corporate" style="max-width:60px;max-height:60px;">
+                    </div>
+                    <div class="company-name">2N CORPORATE</div>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-details">
+                        <h4>{{ user.username }}</h4>
+                        <p>{{ user.role }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Tableau de bord
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'mission_list' %}" class="nav-link active">
+                        <i class="fas fa-tasks"></i>
+                        Missions
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'intervention_list' %}" class="nav-link">
+                        <i class="fas fa-tools"></i>
+                        Interventions
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'client_list' %}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        Clients
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'rapports_dashboard' %}" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        Rapports
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        Notifications
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'connexion' %}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Déconnexion
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 class="page-title">{{ mission.titre }}</h1>
+                <div class="header-actions">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+                      <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                    <a href="{% url 'rapport_mission' mission.id %}" class="btn btn-info">
+                        <i class="fas fa-file-alt"></i>
+                        Rapport
+                    </a>
+                    <a href="{% url 'mission_edit' mission.id %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Modifier
+                    </a>
+                    <a href="{% url 'mission_delete' mission.id %}" class="btn btn-danger" 
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette mission ?')">
+                        <i class="fas fa-trash"></i>
+                        Supprimer
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="mission-details">
+                <!-- Mission Information -->
+                <div class="detail-card">
+                    <h2 class="card-title">
+                        <i class="fas fa-info-circle"></i>
+                        Informations de la mission
+                    </h2>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Client</div>
+                            <div class="info-value">{{ mission.client.nom }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Nature</div>
+                            <div class="info-value">{{ mission.get_nature_display }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">{{ mission.date|date:"d/m/Y" }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Lieu</div>
+                            <div class="info-value">{{ mission.lieu }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Fréquence</div>
+                            <div class="info-value">
+                                {% if mission.frequence %}
+                                    {{ mission.get_frequence_display }}
+                                {% else %}
+                                    Non définie
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Assigné à</div>
+                            <div class="info-value">
+                                {% if mission.assigne_a %}
+                                    {{ mission.assigne_a.first_name }} {{ mission.assigne_a.last_name }}
+                                    <br><small style="color: #666;">{{ mission.assigne_a.get_role_display }}</small>
+                                {% else %}
+                                    Non assigné
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Statut</div>
+                            <div class="info-value">
+                                <span class="status-badge status-{{ mission.statut }}">
+                                    {{ mission.get_statut_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Date de création</div>
+                            <div class="info-value">{{ mission.date_creation|date:"d/m/Y H:i" }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if mission.description %}
+                    <div class="description-box">
+                        <div class="info-label">Description</div>
+                        <div class="description-text">{{ mission.description }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions Sidebar -->
+                <div class="actions-sidebar">
+                    <div class="action-card">
+                        <h3 class="action-title">Actions rapides</h3>
+                        <div class="action-list">
+                            <a href="#" class="action-item">
+                                <i class="fas fa-plus"></i>
+                                Nouvelle intervention
+                            </a>
+                            <a href="{% url 'rapport_mission' mission.id %}" class="action-item">
+                                <i class="fas fa-file-alt"></i>
+                                Voir le rapport
+                            </a>
+                            <a href="#" class="action-item">
+                                <i class="fas fa-bell"></i>
+                                Envoyer notification
+                            </a>
+                            <a href="#" class="action-item">
+                                <i class="fas fa-calendar"></i>
+                                Planifier intervention
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="action-card">
+                        <h3 class="action-title">Informations client</h3>
+                        <div class="info-item">
+                            <div class="info-label">Contact</div>
+                            <div class="info-value">{{ mission.client.contact }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ mission.client.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Téléphone</div>
+                            <div class="info-value">{{ mission.client.telephone }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Adresse</div>
+                            <div class="info-value">{{ mission.client.adresse }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interventions Section -->
+            <div class="interventions-section">
+                <div class="section-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-tools"></i>
+                        Interventions
+                    </h2>
+                    <a href="#" class="btn btn-success">
+                        <i class="fas fa-plus"></i>
+                        Nouvelle intervention
+                    </a>
+                </div>
+
+                <div class="interventions-list">
+                    {% if mission.intervention_set.all %}
+                        {% for intervention in mission.intervention_set.all %}
+                        <div class="intervention-item">
+                            <div class="intervention-header">
+                                <div>
+                                    <div class="intervention-title">Intervention #{{ intervention.id }}</div>
+                                    <div class="intervention-date">{{ intervention.date_intervention|date:"d/m/Y H:i" }}</div>
+                                </div>
+                                <span class="intervention-status status-{{ intervention.statut }}">
+                                    {{ intervention.get_statut_display }}
+                                </span>
+                            </div>
+                            <div class="description-text">
+                                {{ intervention.description|default:"Aucune description" }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-interventions">
+                            <i class="fas fa-tools"></i>
+                            <h3>Aucune intervention</h3>
+                            <p>Aucune intervention n'a encore été créée pour cette mission.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
