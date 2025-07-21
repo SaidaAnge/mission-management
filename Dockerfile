@@ -6,9 +6,9 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # 1. Installer les dépendances
-COPY requirements.txt /app/
+COPY requirement.txt /app/
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirement.txt
 
 # 2. Copier le code
 COPY . /app/
